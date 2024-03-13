@@ -29,6 +29,12 @@ GROUP BY generi.nome;
 SELECT \* FROM prestiti
 WHERE data_restituzione <= '2023-01-01';
 
+## Selezionare tutti i libri di un determinato genere
+
+SELECT titolo FROM libri
+JOIN generi ON libri.genere_id = generi.id
+WHERE generi.nome = 'Nome Genere';
+
 ## Selezionare i libri più popolari (quelli prestati più volte)
 
 SELECT libri.titolo, COUNT(prestiti.id) AS volte_prestato FROM prestiti
@@ -36,23 +42,19 @@ JOIN libri ON prestiti.libro_id = libri.id
 GROUP BY libri.titolo
 ORDER BY volte_prestato DESC;
 
-## seleziona il titolo, il nome, il genere, autore e gli utenti che lo hanno preso in prestito un libro nel 2022
+## Seleziona il titolo, il nome, il genere e autore di un libro specifico "The Great Gatsby"
 
-SELECT libri.titolo, autori.nome AS autore, generi.nome AS genere, utenti.nome AS utente
-FROM prestiti
-JOIN libri ON prestiti.libro_id = libri.id
+SELECT libri.titolo, autori.nome AS autore_nome, generi.nome AS genere FROM libri
 JOIN autori ON libri.autore_id = autori.id
 JOIN generi ON libri.genere_id = generi.id
-JOIN utenti ON prestiti.utente_id = utenti.id
-WHERE YEAR(data_prestito) = 2022;
+WHERE libri.titolo = 'The Great Gatsby';
 
-## seleziona il titolo del libro e nome dell utente con durata del prestito maggiore di 20 giorni
+## seleziona i titoli dei libri, il genere dell'autore di nome "Stephen King"
 
-SELECT libri.titolo, utenti.nome
-FROM prestiti
-JOIN libri ON prestiti.libro_id = libri.id
-JOIN utenti ON prestiti.utente_id = utenti.id
-WHERE DATEDIFF(data_restituzione, data_prestito) > 20;
+SELECT libri.titolo, generi.nome AS genere FROM libri
+JOIN autori ON libri.autore_id = autori.id
+JOIN generi ON libri.genere_id = generi.id
+WHERE autori.nome = 'Stephen King';
 
 ## Selezionare tutti gli utenti che hanno preso in prestito almeno un libro di un determinato genere
 
@@ -62,3 +64,41 @@ JOIN prestiti ON utenti.id = prestiti.utente_id
 JOIN libri ON prestiti.libro_id = libri.id
 JOIN generi ON libri.genere_id = generi.id
 WHERE generi.nome = 'Nome Genere';
+
+## Seleziona il titolo, il nome, il genere, autore e gli utenti che lo hanno preso in prestito un libro nel 2022
+
+SELECT libri.titolo, autori.nome AS autore_nome, generi.nome AS genere, utenti.nome AS utente_nome FROM prestiti
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN autori ON libri.autore_id = autori.id
+JOIN generi ON libri.genere_id = generi.id
+JOIN utenti ON prestiti.utente_id = utenti.id
+WHERE YEAR(data_prestito) = 2022;
+
+## Contare quanti libri gli utenti hanno preso in prestito un libro nel 2021 raggruppati per genere
+
+SELECT generi.nome AS genere, COUNT(prestiti.id) AS numero_prestiti FROM prestiti
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN generi ON libri.genere_id = generi.id
+WHERE YEAR(data_prestito) = 2021
+GROUP BY generi.nome;
+
+## Seleziona il titolo, gli utenti e la durata del prestito
+
+SELECT libri.titolo, utenti.nome, DATEDIFF(data_restituzione, data_prestito) AS durata_prestito FROM prestiti
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN utenti ON prestiti.utente_id = utenti.id;
+
+## Seleziona il titolo, gli utenti con durata del prestito maggiore di 20 giorni
+
+SELECT libri.titolo, utenti.nome FROM prestiti
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN utenti ON prestiti.utente_id = utenti.id
+WHERE DATEDIFF(data_restituzione, data_prestito) > 20;
+
+## Valutare la durata media del prestito di ogni libro, con il genere ordinati per durata decrescente
+
+SELECT libri.titolo, generi.nome AS genere, AVG(DATEDIFF(data_restituzione, data_prestito)) AS durata_media FROM prestiti
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN generi ON libri.genere_id = generi.id
+GROUP BY libri.titolo, generi.nome
+ORDER BY durata_media DESC;
