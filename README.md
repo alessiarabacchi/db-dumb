@@ -53,3 +53,12 @@ FROM prestiti
 JOIN libri ON prestiti.libro_id = libri.id
 JOIN utenti ON prestiti.utente_id = utenti.id
 WHERE DATEDIFF(data_restituzione, data_prestito) > 20;
+
+## Selezionare tutti gli utenti che hanno preso in prestito almeno un libro di un determinato genere
+
+SELECT DISTINCT utenti.nome
+FROM utenti
+JOIN prestiti ON utenti.id = prestiti.utente_id
+JOIN libri ON prestiti.libro_id = libri.id
+JOIN generi ON libri.genere_id = generi.id
+WHERE generi.nome = 'Nome Genere';
